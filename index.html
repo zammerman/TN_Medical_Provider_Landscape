@@ -915,63 +915,122 @@ document.getElementById('fullscreen-link').addEventListener('click', () => {
                 updateProviderLayer('All Physicians');
             });
             
-           // Get unique specialties from GME layer
+          // Get unique specialties from GME layer
 function loadSpecialties() {
-    // First ensure the layer is visible temporarily to query it
-    const originalVisibility = map.getLayoutProperty('GME PROGRAMS', 'visibility');
-    map.setLayoutProperty('GME PROGRAMS', 'visibility', 'visible');
+    console.log('Starting loadSpecialties...');
     
-    // Query all features on the map without bounds restriction
-    const features = map.queryRenderedFeatures(undefined, {
-        layers: ['GME PROGRAMS']
-    });
-    
-    // Restore original visibility
-    if (originalVisibility !== 'visible') {
-        map.setLayoutProperty('GME PROGRAMS', 'visibility', originalVisibility || 'none');
-    }
-    
-    const specialties = new Set();
-    features.forEach(feature => {
-        const specialty = feature.properties['Project Specialty'];
-        if (specialty) {
-            specialties.add(specialty);
-        }
-    });
-    
-    allSpecialties = Array.from(specialties).sort();
-    selectedSpecialties = new Set(allSpecialties);
-    
-    console.log('Found specialties:', allSpecialties.length); // Debug log
-    
-    const container = document.getElementById('specialty-checkboxes');
-    container.innerHTML = '';
-    
-    if (allSpecialties.length === 0) {
-        container.innerHTML = '<div style="padding: 8px; font-size: 12px; color: #666;">Loading specialties...</div>';
+    // Make sure the layer exists
+    if (!map.getLayer('GME PROGRAMS')) {
+        console.error('GME PROGRAMS layer not found!');
+        const container = document.getElementById('specialty-checkboxes');
+        container.innerHTML = '<div style="padding: 8px; font-size: 12px; color: red;">Layer not found</div>';
         return;
     }
     
-    allSpecialties.forEach(specialty => {
-        const div = document.createElement('div');
-        div.className = 'gme-filter-option';
+    // Temporarily show the layer and zoom out to see all features
+    const originalVisibility = map.getLayoutProperty('GME PROGRAMS', 'visibility');
+    const originalZoom = map.getZoom();
+    const originalCenter = map.getCenter();
+    
+    // Show layer and zoom out to Tennessee bounds
+    map.setLayoutProperty('GME PROGRAMS', 'visibility', 'visible');
+    map.fitBounds([[-90, 34.5], [-81.5, 36.7]], { duration: 0 });
+    
+    // Wait for map to render then query
+    setTimeout(() => {
+        const features = map.queryRenderedFeatures(undefined, {
+            layers: ['GME PROGRAMS']
+        });
         
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = `specialty-${specialty.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
-        checkbox.value = specialty;
-        checkbox.checked = true;
-        checkbox.addEventListener('change', updateGMEFilter);
+        console.log('Found features:', features.length);
         
-        const label = document.createElement('label');
-        label.htmlFor = checkbox.id;
-        label.textContent = specialty;
+        // Log first feature to see property names
+        if (features.length > 0) {
+            console.log('First feature properties:', features[0].properties);
+        }
         
-        div.appendChild(checkbox);
-        div.appendChild(label);
-        container.appendChild(div);
-    });
+        // Restore original view
+        map.setZoom(originalZoom);
+        map.setCenter(originalCenter);
+        if (originalVisibility !== 'visible') {
+            map.setLayoutProperty('GME PROGRAMS', 'visibility', originalVisibility || 'none');
+        }
+        
+        const specialties = new Set();
+        features.forEach(feature => {
+            // Try multiple possible property names
+            const specialty = feature.properties['Project Specialty'] || 
+                            feature.properties['Specialty'] || 
+                            feature.properties['project_specialty'] ||
+                            feature.properties['specialty'];
+            if (specialty) {
+                specialties.add(specialty);
+            }
+        });
+        
+        allSpecialties = Array.from(specialties).sort();
+        selectedSpecialties = new Set(allSpecialties);
+        
+        console.log('Found specialties:', allSpecialties);
+        
+        const container = document.getElementById('specialty-checkboxes');
+        container.innerHTML = '';
+        
+        if (allSpecialties.length === 0) {
+            container.innerHTML = '<div style="padding: 8px; font-size: 12px; color: #666;">No specialties found. Check console for details.</div>';
+            return;
+        }
+        
+        allSpecialties.forEach(specialty => {
+            const div = document.createElement('div');
+            div.className = 'gme-filter-option';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `specialty-${specialty.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
+            checkbox.value = specialty;
+            checkbox.checked = true;
+            checkbox.addEventListener('change', updateGMEFilter);
+            
+            const label = document.createElement('label');
+            label.htmlFor = checkbox.id;
+            label.textContent = specialty;
+            
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            container.appendChild(div);
+        });
+    }, 500);
 }
+
+// Update GME layer filter
+function updateGMEFilter() {
+    selectedSpecialties.clear();
+    document.querySelectorAll('#specialty-checkboxes input[type="checkbox"]:checked').forEach(cb => {
+        selectedSpecialties.add(cb.value);
+    });
+    
+    if (selectedSpecialties.size === 0) {
+        map.setFilter('GME PROGRAMS', ['==', 'Project Specialty', '']);
+    } else if (selectedSpecialties.size === allSpecialties.length) {
+        map.setFilter('GME PROGRAMS', null);
+    } else {
+        const filterExpression = ['in', ['get', 'Project Specialty'], ['literal', Array.from(selectedSpecialties)]];
+        map.setFilter('GME PROGRAMS', filterExpression);
+    }
+}
+
+// Load specialties when map is idle
+map.on('idle', () => {
+    // Only try once after initial load
+    if (allSpecialties.length === 0 && !window.hasTriedLoadingSpecialties) {
+        window.hasTriedLoadingSpecialties = true;
+        console.log('Map idle, attempting to load specialties...');
+        setTimeout(() => {
+            loadSpecialties();
+        }, 1000);
+    }
+});
             
             // Update GME layer filter
             function updateGMEFilter() {
