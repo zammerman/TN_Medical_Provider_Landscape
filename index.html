@@ -96,8 +96,8 @@
         }
 #provider-dropdown-section {
     position: absolute;
-    top: 10px;  
-    left: 400px; 
+    top: 10px;  /* Aligned with top of title section */
+    left: 400px;  /* To the right of title section (350px + 10px + 10px buffer) */
     z-index: 2;
     max-width: 300px;
     background: rgba(255, 255, 255, 0.7);
@@ -560,7 +560,8 @@
     <!-- Title Section (Top Left) -->
 <div class="title-section">
     <h4>Tennessee Medical Provider Landscape</h4>
-<p>Select a provider type to see the ratio of population to that type of provider. Add information to the map using the layers in the "Additional Context" menu<br><br><span class="fullscreen-link" id="fullscreen-link">Open map in new tab for full-screen viewing</span></p></div>
+    <p>Select a provider type to see the ratio of population to that type of provider. Add information to the map using the layers in the "Additional Context" menu<br><br><span class="fullscreen-link" id="fullscreen-link">Open map in new tab for full-screen viewing</span></p>
+</div>
 
 <!-- Logo Section -->
 <div class="logo-section">
@@ -874,7 +875,7 @@ updateLegend(fieldName, stops);
                 `;
             }
             
-           // Fullscreen functionality - opens in new tab
+            // Fullscreen functionality - opens in new tab
 document.getElementById('fullscreen-link').addEventListener('click', () => {
     window.open(window.location.href, '_blank');
 });
@@ -915,122 +916,48 @@ document.getElementById('fullscreen-link').addEventListener('click', () => {
                 updateProviderLayer('All Physicians');
             });
             
-          // Get unique specialties from GME layer
-function loadSpecialties() {
-    console.log('Starting loadSpecialties...');
-    
-    // Make sure the layer exists
-    if (!map.getLayer('GME PROGRAMS')) {
-        console.error('GME PROGRAMS layer not found!');
-        const container = document.getElementById('specialty-checkboxes');
-        container.innerHTML = '<div style="padding: 8px; font-size: 12px; color: red;">Layer not found</div>';
-        return;
-    }
-    
-    // Temporarily show the layer and zoom out to see all features
-    const originalVisibility = map.getLayoutProperty('GME PROGRAMS', 'visibility');
-    const originalZoom = map.getZoom();
-    const originalCenter = map.getCenter();
-    
-    // Show layer and zoom out to Tennessee bounds
-    map.setLayoutProperty('GME PROGRAMS', 'visibility', 'visible');
-    map.fitBounds([[-90, 34.5], [-81.5, 36.7]], { duration: 0 });
-    
-    // Wait for map to render then query
-    setTimeout(() => {
-        const features = map.queryRenderedFeatures(undefined, {
-            layers: ['GME PROGRAMS']
-        });
-        
-        console.log('Found features:', features.length);
-        
-        // Log first feature to see property names
-        if (features.length > 0) {
-            console.log('First feature properties:', features[0].properties);
-        }
-        
-        // Restore original view
-        map.setZoom(originalZoom);
-        map.setCenter(originalCenter);
-        if (originalVisibility !== 'visible') {
-            map.setLayoutProperty('GME PROGRAMS', 'visibility', originalVisibility || 'none');
-        }
-        
-        const specialties = new Set();
-        features.forEach(feature => {
-            // Try multiple possible property names
-            const specialty = feature.properties['Project Specialty'] || 
-                            feature.properties['Specialty'] || 
-                            feature.properties['project_specialty'] ||
-                            feature.properties['specialty'];
-            if (specialty) {
-                specialties.add(specialty);
+            // Get unique specialties from GME layer
+            function loadSpecialties() {
+                const bounds = [[-90, 34], [-82, 37]];
+                const features = map.queryRenderedFeatures(
+                    [map.project(bounds[0]), map.project(bounds[1])],
+                    { layers: ['GME PROGRAMS'] }
+                );
+                
+                const specialties = new Set();
+                features.forEach(feature => {
+                    const specialty = feature.properties['Specialty'];
+                    if (specialty) {
+                        specialties.add(specialty);
+                    }
+                });
+                
+                allSpecialties = Array.from(specialties).sort();
+                selectedSpecialties = new Set(allSpecialties);
+                
+                const container = document.getElementById('specialty-checkboxes');
+                container.innerHTML = '';
+                
+                allSpecialties.forEach(specialty => {
+                    const div = document.createElement('div');
+                    div.className = 'gme-filter-option';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `specialty-${specialty.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
+                    checkbox.value = specialty;
+                    checkbox.checked = true;
+                    checkbox.addEventListener('change', updateGMEFilter);
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = checkbox.id;
+                    label.textContent = specialty;
+                    
+                    div.appendChild(checkbox);
+                    div.appendChild(label);
+                    container.appendChild(div);
+                });
             }
-        });
-        
-        allSpecialties = Array.from(specialties).sort();
-        selectedSpecialties = new Set(allSpecialties);
-        
-        console.log('Found specialties:', allSpecialties);
-        
-        const container = document.getElementById('specialty-checkboxes');
-        container.innerHTML = '';
-        
-        if (allSpecialties.length === 0) {
-            container.innerHTML = '<div style="padding: 8px; font-size: 12px; color: #666;">No specialties found. Check console for details.</div>';
-            return;
-        }
-        
-        allSpecialties.forEach(specialty => {
-            const div = document.createElement('div');
-            div.className = 'gme-filter-option';
-            
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = `specialty-${specialty.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
-            checkbox.value = specialty;
-            checkbox.checked = true;
-            checkbox.addEventListener('change', updateGMEFilter);
-            
-            const label = document.createElement('label');
-            label.htmlFor = checkbox.id;
-            label.textContent = specialty;
-            
-            div.appendChild(checkbox);
-            div.appendChild(label);
-            container.appendChild(div);
-        });
-    }, 500);
-}
-
-// Update GME layer filter
-function updateGMEFilter() {
-    selectedSpecialties.clear();
-    document.querySelectorAll('#specialty-checkboxes input[type="checkbox"]:checked').forEach(cb => {
-        selectedSpecialties.add(cb.value);
-    });
-    
-    if (selectedSpecialties.size === 0) {
-        map.setFilter('GME PROGRAMS', ['==', 'Project Specialty', '']);
-    } else if (selectedSpecialties.size === allSpecialties.length) {
-        map.setFilter('GME PROGRAMS', null);
-    } else {
-        const filterExpression = ['in', ['get', 'Project Specialty'], ['literal', Array.from(selectedSpecialties)]];
-        map.setFilter('GME PROGRAMS', filterExpression);
-    }
-}
-
-// Load specialties when map is idle
-map.on('idle', () => {
-    // Only try once after initial load
-    if (allSpecialties.length === 0 && !window.hasTriedLoadingSpecialties) {
-        window.hasTriedLoadingSpecialties = true;
-        console.log('Map idle, attempting to load specialties...');
-        setTimeout(() => {
-            loadSpecialties();
-        }, 1000);
-    }
-});
             
             // Update GME layer filter
             function updateGMEFilter() {
@@ -1040,31 +967,19 @@ map.on('idle', () => {
                 });
                 
                 if (selectedSpecialties.size === 0) {
-                    map.setFilter('GME PROGRAMS', ['==', 'Project Specialty', '']);
+                    map.setFilter('GME PROGRAMS', ['==', 'Specialty', '']);
                 } else if (selectedSpecialties.size === allSpecialties.length) {
                     map.setFilter('GME PROGRAMS', null);
                 } else {
-                    const filterExpression = ['in', ['get', 'Project Specialty'], ['literal', Array.from(selectedSpecialties)]];
+                    const filterExpression = ['in', ['get', 'Specialty'], ['literal', Array.from(selectedSpecialties)]];
                     map.setFilter('GME PROGRAMS', filterExpression);
                 }
             }
             
-        // Load specialties after map loads with retry logic
-let specialtyLoadAttempts = 0;
-function tryLoadSpecialties() {
-    specialtyLoadAttempts++;
-    loadSpecialties();
-    
-    // If no specialties found, retry up to 5 times
-    if (allSpecialties.length === 0 && specialtyLoadAttempts < 5) {
-        setTimeout(tryLoadSpecialties, 1000);
-    }
-}
-
-// Initial attempt after map settles
-map.once('idle', () => {
-    setTimeout(tryLoadSpecialties, 500);
-});
+            // Load specialties after map loads
+            setTimeout(() => {
+                loadSpecialties();
+            }, 1500);
             
             // Search functionality for specialties
             document.getElementById('specialty-search').addEventListener('input', (e) => {
@@ -1134,18 +1049,11 @@ map.once('idle', () => {
                 document.getElementById('medical-schools-legend').classList.toggle('hidden', !e.target.checked);
             });
             
-     document.getElementById('toggle-gme').addEventListener('change', (e) => {
-    map.setLayoutProperty('GME PROGRAMS', 'visibility', e.target.checked ? 'visible' : 'none');
-    document.getElementById('gme-legend').classList.toggle('hidden', !e.target.checked);
-    document.getElementById('gme-filter').classList.toggle('hidden', !e.target.checked);
-    
-    // Load specialties when layer is shown for the first time
-    if (e.target.checked && allSpecialties.length === 0) {
-        setTimeout(() => {
-            loadSpecialties();
-        }, 500);
-    }
-});
+            document.getElementById('toggle-gme').addEventListener('change', (e) => {
+                map.setLayoutProperty('GME PROGRAMS', 'visibility', e.target.checked ? 'visible' : 'none');
+                document.getElementById('gme-legend').classList.toggle('hidden', !e.target.checked);
+                document.getElementById('gme-filter').classList.toggle('hidden', !e.target.checked);
+            });
             
             // Hover cursors for interactive layers
             map.on('mouseenter', 'TN NEW COUNTY MAP', () => {
