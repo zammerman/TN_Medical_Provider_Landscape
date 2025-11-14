@@ -560,8 +560,7 @@
     <!-- Title Section (Top Left) -->
 <div class="title-section">
     <h4>Tennessee Medical Provider Landscape</h4>
-    <p>Select a provider type to see the ratio of population to that type of provider. Add information to the map using the layers in the "Additional Context" menu<br><br><span class="fullscreen-link" id="fullscreen-link">Click here to see this map in full-screen mode</span></p>
-</div>
+<p>Select a provider type to see the ratio of population to that type of provider. Add information to the map using the layers in the "Additional Context" menu<br><br><span class="fullscreen-link" id="fullscreen-link">Open map in new tab for full-screen viewing</span></p></div>
 
 <!-- Logo Section -->
 <div class="logo-section">
@@ -875,17 +874,10 @@ updateLegend(fieldName, stops);
                 `;
             }
             
-            // Fullscreen functionality
-            document.getElementById('fullscreen-link').addEventListener('click', () => {
-                const elem = document.documentElement;
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.webkitRequestFullscreen) {
-                    elem.webkitRequestFullscreen();
-                } else if (elem.msRequestFullscreen) {
-                    elem.msRequestFullscreen();
-                }
-            });
+           // Fullscreen functionality - opens in new tab
+document.getElementById('fullscreen-link').addEventListener('click', () => {
+    window.open(window.location.href, '_blank');
+});
             
             // Toggle functionality for Provider Type dropdown
             document.getElementById('provider-dropdown-header').addEventListener('click', () => {
