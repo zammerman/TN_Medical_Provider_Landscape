@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tennessee Health Services Map</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+    <style>
+       body {
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+        
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .layer-toggle-menu {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+    max-width: 280px;
+}
+        
+       .title-section {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    max-width: 350px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.logo-section {
+    position: absolute;
+    bottom: 55px;
+    right: 10px;
+    z-index: 2;
+}
+
+.logo-section img {
+    width: 250px;
+    height: auto;
+    display: block;
+}
+        
+        .title-section h4 {
+    margin: 0 0 10px 0;
+    font-size: 24px;           /* Increase size */
+    font-weight: 700;           /* Make bolder (700 = bold) */
+    color: #000000;            /* Change color (dark green example) */
+    text-transform: uppercase;  /* Optional: make all caps */
+    font-family: 'Josefin Sans', sans-serif;
+}
+        
+        .title-section p {
+            margin: 0;
+            font-size: 14px;
+            color: #000000;
+            line-height: 1.4;
+        }
+        
+        .fullscreen-link {
+            color: #0066cc;
+            text-decoration: underline;
+            cursor: pointer;
+            display: block;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        
+        .fullscreen-link:hover {
+            color: #0052a3;
+        }
+        
+        .dropdown-section {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+#provider-dropdown-section {
+    position: absolute;
+    top: 10px;  /* Aligned with top of title section */
+    left: 370px;  /* To the right of title section (350px + 10px + 10px buffer) */
+    z-index: 2;
+    max-width: 300px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+        
+        .dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .dropdown-title {
+    font-size: 16px;           /* Increase size */
+    font-weight: 700;           /* Make bolder */
+    color: #000000;            /* Match title color or choose different */
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;  /* Optional: make all caps */
+    letter-spacing: 0.5px;      /* Optional: add letter spacing */
+}
+        }
+        
+        .dropdown-arrow {
+            font-size: 12px;
+            color: #666;
+            transition: transform 0.2s;
+        }
+        
+        .dropdown-arrow.expanded {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .dropdown-content.expanded {
+            max-height: 500px;
+            padding-top: 10px;
+        }
+        
+        .provider-select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .provider-select:focus {
+            outline: none;
+            border-color: #999;
+        }
+        
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        .layer-toggle:last-child {
+            margin-bottom: 0;
+        }
+        
+        .layer-toggle input {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .layer-toggle label {
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .mapboxgl-popup-content {
+            padding: 15px;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        
+        .popup-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .popup-data {
+            font-size: 14px;
+            color: #000000;
+        }
+        
+        .popup-layer-label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+      .legend {
+    position: absolute;
+    bottom: 175px;
+    right: 10px;  
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    font-family: system-ui, -apple-system, sans-serif;
+    z-index: 1;
+    min-width: 200px;
+}
+
+.map-credit {
+    position: absolute;
+    bottom: 30px;
+    right: 10px;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 11px;
+    color: #666;
+    z-index: 1;
+}
+
+.map-credit a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.map-credit a:hover {
+    text-decoration: underline;
+}   
+        
+        .legend-title {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .legend-gradient {
+            height: 20px;
+            background: linear-gradient(to right, 
+                #053460, 
+                #3d655b, 
+                #8b9661, 
+                #d7c775, 
+                #f9c775, 
+                #f5af38
+            );
+            border-radius: 3px;
+            margin-bottom: 5px;
+        }
+        
+        .legend-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #000000;
+        }
+        
+        .legend.hidden {
+            display: none;
+        }
+        
+        .no-data-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .no-data-box {
+            width: 20px;
+            height: 14px;
+            background-color: #cccccc;
+            border-radius: 2px;
+        }
+        
+        .no-data-text {
+            font-size: 11px;
+            color: #666;
+        }
+        .medical-schools-legend {
+    position: absolute;
+    bottom: 65px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    font-family: system-ui, -apple-system, sans-serif;
+    z-index: 1;
+}
+        
+        .medical-schools-legend.hidden {
+            display: none;
+        }
+        
+        .hospital-legend {
+            position: absolute;
+            bottom: 185px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-family: system-ui, -apple-system, sans-serif;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .hospital-legend-circle {
+            width: 16px;
+            height: 16px;
+            background-color: rgba(252, 175, 23, 0.7);
+            border: 2px solid rgba(252, 175, 23, 1);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .hospital-legend-text {
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .hospital-legend.hidden {
+            display: none;
+        }
+        
+       .gme-legend {
+    position: absolute;
+    bottom: 20px;  
+    left: 260px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    font-family: system-ui, -apple-system, sans-serif;
+    z-index: 1;
+}
+        
+        .gme-legend-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .gme-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        
+        .gme-legend-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .gme-legend-circle {
+            width: 16px;
+            height: 16px;
+            border: 2px solid;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .gme-legend-text {
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .gme-legend.hidden {
+            display: none;
+        }
+        
+        .rural-legend {
+            position: absolute;
+            bottom: 20px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-family: system-ui, -apple-system, sans-serif;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .rural-legend-box {
+            width: 16px;
+            height: 16px;
+            background-color: #999;
+            background-image: repeating-linear-gradient(
+                -45deg,
+                white,
+                white 1px,
+                transparent 1px,
+                transparent 4px
+            );
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        
+        .rural-legend-text {
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .rural-legend.hidden {
+            display: none;
+        }
+        
+        .gme-filter {
+    position: absolute;
+    top: 10px;  
+    right: 310px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    font-family: system-ui, -apple-system, sans-serif;
+    z-index: 1;
+    max-width: 280px;
+}
+        
+        .gme-filter.hidden {
+            display: none;
+        }
+        
+        .gme-filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .gme-filter-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .gme-filter-arrow {
+            font-size: 12px;
+            color: #666;
+            transition: transform 0.2s;
+        }
+        
+        .gme-filter-arrow.expanded {
+            transform: rotate(180deg);
+        }
+        
+        .gme-filter-dropdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .gme-filter-dropdown.expanded {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .gme-filter-controls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+        }
+        
+        .gme-filter-search {
+            width: 100%;
+            padding: 6px 8px;
+            margin-bottom: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: system-ui, -apple-system, sans-serif;
+            box-sizing: border-box;
+        }
+        
+        .gme-filter-search:focus {
+            outline: none;
+            border-color: #999;
+        }
+        
+        .gme-filter-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .gme-filter-btn {
+            font-size: 11px;
+            padding: 4px 8px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .gme-filter-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .gme-filter-option {
+            display: flex;
+            align-items: center;
+            padding: 4px 0;
+        }
+        
+        .gme-filter-option input {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .gme-filter-option label {
+            font-size: 12px;
+            cursor: pointer;
+            user-select: none;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <!-- Title Section (Top Left) -->
+<div class="title-section">
+    <h4>Tennessee Medical Provider Landscape</h4>
+    <p>Select a provider type to see the ratio of population to that type of provider. Add information to the map using the layers in the "Additional Context" menu<br><br><span class="fullscreen-link" id="fullscreen-link">Click here to see this map in full-screen mode</span></p>
+</div>
+
+<!-- Logo Section -->
+<div class="logo-section">
+    <img src="http://veritastestsite.com/wp-content/uploads/2025/08/Asset-1.png" alt="Logo">
+</div>
+    
+    <!-- GME Filter (Below Title) -->
+    <div class="gme-filter hidden" id="gme-filter">
+        <div class="gme-filter-header" id="gme-filter-header">
+            <div class="gme-filter-title">Filter GME by Specialty</div>
+            <div class="gme-filter-arrow" id="gme-filter-arrow">▼</div>
+        </div>
+        <div class="gme-filter-dropdown" id="gme-filter-dropdown">
+            <div class="gme-filter-controls">
+                <input type="text" class="gme-filter-search" id="specialty-search" placeholder="Search specialties...">
+                <div class="gme-filter-buttons">
+                    <button class="gme-filter-btn" id="select-all-specialties">Select All</button>
+                    <button class="gme-filter-btn" id="deselect-all-specialties">Deselect All</button>
+                </div>
+                <div id="specialty-checkboxes"></div>
+            </div>
+        </div>
+    </div>
+    
+   <!-- Provider Type Dropdown (Left Side) -->
+    <div class="dropdown-section" id="provider-dropdown-section">
+        <div class="dropdown-header" id="provider-dropdown-header">
+            <div class="dropdown-title">Provider Type</div>
+            <div class="dropdown-arrow expanded" id="provider-dropdown-arrow">▼</div>
+        </div>
+        <p style="font-size: 12px; color: #000000; line-height: 1.4; margin: 8px 0 0 0; padding: 0 0px;">
+            Select a medical specialty to view population-to-provider ratios across Tennessee counties.
+        </p>
+        <div class="dropdown-content expanded" id="provider-dropdown-content">
+            <select id="provider-select" class="provider-select">
+                <option value="All Physicians">All Physicians</option>
+                <optgroup label="Primary Care Physicians">
+                    <option value="PCP - Family Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Family Medicine</option>
+                    <option value="PCP - Geriatric Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Geriatric Medicine</option>
+                    <option value="PCP - Internal Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Internal Medicine</option>
+                    <option value="PCP - Internal Medicine/Pediatric Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Internal Medicine/Pediatric Medicine</option>
+                    <option value="PCP - Ob/Gyn">&nbsp;&nbsp;&nbsp;&nbsp;Ob/Gyn</option>
+                    <option value="PCP - Pediatric Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Pediatric Medicine</option>
+                    <option value="PCP - Psychiatry">&nbsp;&nbsp;&nbsp;&nbsp;Psychiatry</option>
+                </optgroup>
+                <optgroup label="Specialists">
+                    <option value="SPEC - Anesthesiology">&nbsp;&nbsp;&nbsp;&nbsp;Anesthesiology</option>
+                    <option value="SPEC - Cardiology">&nbsp;&nbsp;&nbsp;&nbsp;Cardiology</option>
+                    <option value="SPEC - Critical Care Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Critical Care Medicine</option>
+                    <option value="SPEC - Emergency Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Emergency Medicine</option>
+                    <option value="SPEC - Ent">&nbsp;&nbsp;&nbsp;&nbsp;Ent</option>
+                    <option value="SPEC - Gastroenterology">&nbsp;&nbsp;&nbsp;&nbsp;Gastroenterology</option>
+                    <option value="SPEC - General Surgery">&nbsp;&nbsp;&nbsp;&nbsp;General Surgery</option>
+                    <option value="SPEC - Hematology/Oncology">&nbsp;&nbsp;&nbsp;&nbsp;Hematology/Oncology</option>
+                    <option value="SPEC - Nephrology">&nbsp;&nbsp;&nbsp;&nbsp;Nephrology</option>
+                    <option value="SPEC - Neurology">&nbsp;&nbsp;&nbsp;&nbsp;Neurology</option>
+                    <option value="SPEC - Ophthalmology">&nbsp;&nbsp;&nbsp;&nbsp;Ophthalmology</option>
+                    <option value="SPEC - Orthopedics">&nbsp;&nbsp;&nbsp;&nbsp;Orthopedics</option>
+                    <option value="SPEC - Pulmonology">&nbsp;&nbsp;&nbsp;&nbsp;Pulmonology</option>
+                    <option value="SPEC - Radiology">&nbsp;&nbsp;&nbsp;&nbsp;Radiology</option>
+                    <option value="SPEC - Urology">&nbsp;&nbsp;&nbsp;&nbsp;Urology</option>
+                    <option value="SPEC - Endocrinology">&nbsp;&nbsp;&nbsp;&nbsp;Endocrinology</option>
+                    <option value="SPEC - Infectious Disease">&nbsp;&nbsp;&nbsp;&nbsp;Infectious Disease</option>
+                    <option value="SPEC - Rheumatology">&nbsp;&nbsp;&nbsp;&nbsp;Rheumatology</option>
+                    <option value="SPEC - All Other Specialties">&nbsp;&nbsp;&nbsp;&nbsp;All Other Specialties</option>
+                </optgroup>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Right Side Menu - Additional Context Only -->
+    <div class="layer-toggle-menu">
+        <!-- Additional Context Dropdown -->
+        <div class="dropdown-section">
+            <div class="dropdown-header" id="context-dropdown-header">
+                <div class="dropdown-title">Additional Context</div>
+                <div class="dropdown-arrow" id="context-dropdown-arrow">▼</div>
+            </div>
+            <div class="dropdown-content" id="context-dropdown-content">
+                <p style="font-size: 12px; color: #000000; line-height: 1.4; margin: 0 0 10px 0;">
+                    In addition to the health provider ratio layers above, you can also toggle the following layers to get context about Tennessee's health provider landscape.
+                </p>
+                <div class="layer-toggle">
+                    <input id="toggle-rural" type="checkbox">
+                    <label for="toggle-rural">Rural Overlay</label>
+                </div>
+                <div class="layer-toggle">
+                    <input id="toggle-health" type="checkbox">
+                    <label for="toggle-health">Hospital Locations</label>
+                </div>
+                <div class="layer-toggle">
+                    <input id="toggle-medical-schools" type="checkbox">
+                    <label for="toggle-medical-schools">Tennessee Medical Schools (DO, MD)</label>
+                </div>
+                <div class="layer-toggle">
+                    <input id="toggle-gme" type="checkbox">
+                    <label for="toggle-gme">Graduate Medical Education Programs (Residency, Fellowship)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="legend" id="legend-dynamic">
+        <div class="legend-title" id="legend-title">All Physicians</div>
+        <div style="font-size: 11px; color: #000000; margin-bottom: 8px;">Population per Provider FTE</div>
+        <div class="legend-gradient"></div>
+        <div class="legend-labels" id="legend-labels">
+            <span>Loading...</span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="no-data-indicator">
+            <div class="no-data-box"></div>
+            <div class="no-data-text">No data / 0 providers</div>
+        </div>
+    </div>
+    
+    <div class="medical-schools-legend hidden" id="medical-schools-legend">
+        <div class="gme-legend-title">Tennessee Medical Schools</div>
+        <div style="font-size: 11px; color: #666; margin-bottom: 8px;">Type of Program</div>
+        <div class="gme-legend-item">
+            <div class="gme-legend-circle" style="background-color: rgba(217, 124, 199, 0.5); border-color: rgba(217, 124, 199, 1);"></div>
+            <div class="gme-legend-text">DO</div>
+        </div>
+        <div class="gme-legend-item">
+            <div class="gme-legend-circle" style="background-color: rgba(50, 230, 186, 0.5); border-color: rgba(50, 230, 186, 1);"></div>
+            <div class="gme-legend-text">MD</div>
+        </div>
+    </div>
+    
+    <div class="hospital-legend hidden" id="hospital-legend">
+        <div class="hospital-legend-circle"></div>
+        <div class="hospital-legend-text">Hospital Locations</div>
+    </div>
+    
+    <div class="gme-legend hidden" id="gme-legend">
+        <div class="gme-legend-title">Graduate Medical Education Programs</div>
+        <div class="gme-legend-item">
+            <div class="gme-legend-circle" style="background-color: rgba(242, 105, 97, 0.5); border-color: rgba(242, 105, 97, 1);"></div>
+            <div class="gme-legend-text">Residency</div>
+        </div>
+        <div class="gme-legend-item">
+            <div class="gme-legend-circle" style="background-color: rgba(20, 164, 129, 0.5); border-color: rgba(20, 164, 129, 1);"></div>
+            <div class="gme-legend-text">Fellowship</div>
+        </div>
+    </div>
+
+<div class="map-credit">
+        Map development by <a href="https://www.zacharyammerman.com/" target="_blank">Zachary Ammerman</a>
+    </div>
+    
+    <div class="rural-legend hidden" id="rural-legend">
+        <div class="rural-legend-box"></div>
+        <div class="rural-legend-text">Rural Counties (USDA RUCC >= 4)</div>
+    </div>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiemFtbWVybWFuODkiLCJhIjoiY2xubHJ6ajZ0MjFsdTJrbWs3dXE0dHVqZyJ9.SnToZ2sk33b7fg2A_orXQQ';
+        
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/zammerman89/cmgs32vms000v01qm49zu38fa',
+            center: [-86.196529, 35.743127],
+            zoom: 6.62
+        });
+        
+        // Color scheme matching the existing legends
+        const colorScheme = [
+            '#053460',
+            '#3d655b', 
+            '#8b9661',
+            '#d7c775',
+            '#f9c775',
+            '#f5af38'
+        ];
+        
+        // Store current provider field
+        let currentProviderField = 'All Physicians';
+        let fieldStops = {};
+        
+        map.on('load', () => {
+            let currentPopup = null;
+            let selectedSpecialties = new Set();
+            let allSpecialties = [];
+            
+            // Calculate auto-scaled stops for a field
+function calculateStops(fieldName) {
+    const actualFieldName = 'TN NEW - PPRs (2)_' + fieldName;
+    
+    // Query all features - zoom out to get all counties if needed
+    const currentZoom = map.getZoom();
+    const currentCenter = map.getCenter();
+    
+    // Temporarily zoom out to see all counties
+    if (currentZoom > 7) {
+        map.setZoom(6.5);
+    }
+    
+    // Get all visible features
+    const features = map.queryRenderedFeatures(undefined, {
+        layers: ['TN NEW COUNTY MAP']
+    });
+    
+    // Restore original zoom
+    if (currentZoom > 7) {
+        map.setZoom(currentZoom);
+    }
+    
+    // Get unique counties
+    const uniqueValues = new Map();
+    features.forEach(f => {
+        const countyName = f.properties.Name || f.properties.name || f.properties.NAME;
+        const value = f.properties[actualFieldName];
+        if (countyName && !uniqueValues.has(countyName) && value !== null && value !== undefined && value > 0) {
+            uniqueValues.set(countyName, parseFloat(value));
+        }
+    });
+    
+    // Convert to sorted array
+    const values = Array.from(uniqueValues.values()).sort((a, b) => a - b);
+    
+    console.log(`Field: ${fieldName}, Counties with data: ${values.length}, Range: ${values[0]} - ${values[values.length-1]}`);
+    
+    if (values.length === 0) {
+        console.log('No valid values found, using default scale');
+        return [100, 500, 1000, 2000, 5000, 10000];
+    }
+    
+    // Calculate percentile-based stops
+    const getPercentile = (arr, p) => {
+        const index = Math.ceil((p / 100) * arr.length) - 1;
+        return arr[Math.max(0, index)];
+    };
+    
+    const stops = [
+        Math.round(values[0]),                    // Min
+        Math.round(getPercentile(values, 10)),    // 10th percentile
+        Math.round(getPercentile(values, 30)),    // 30th percentile
+        Math.round(getPercentile(values, 50)),    // Median
+        Math.round(getPercentile(values, 75)),    // 75th percentile
+        Math.round(values[values.length - 1])     // Max
+    ];
+    
+    // Ensure stops are unique and increasing
+    for (let i = 1; i < stops.length; i++) {
+        if (stops[i] <= stops[i-1]) {
+            stops[i] = stops[i-1] + 10;
+        }
+    }
+    
+    console.log('Calculated stops:', stops);
+    return stops;
+}
+            
+            // Update provider layer with dynamic styling
+            function updateProviderLayer(fieldName) {
+                currentProviderField = fieldName;
+                
+               // Always recalculate stops for accuracy (remove caching)
+const stops = calculateStops(fieldName);
+fieldStops[fieldName] = stops;
+                
+                // Append the prefix to the field name
+const actualFieldName = 'TN NEW - PPRs (2)_' + fieldName;
+
+// Create paint expression with gray for 0 values
+const paintExpression = [
+    'case',
+    ['any',
+        ['==', ['get', actualFieldName], null],
+        ['==', ['get', actualFieldName], 0]
+    ],
+    '#cccccc',  // Light gray for no data or 0 values
+    [
+        'interpolate',
+        ['linear'],
+        ['get', actualFieldName],
+        stops[0], colorScheme[0],
+        stops[1], colorScheme[1],
+        stops[2], colorScheme[2],
+        stops[3], colorScheme[3],
+        stops[4], colorScheme[4],
+        stops[5], colorScheme[5]
+    ]
+];
+                
+		// Update the layer paint property
+map.setPaintProperty('TN NEW COUNTY MAP', 'fill-color', paintExpression);
+map.setPaintProperty('TN NEW COUNTY MAP', 'fill-opacity', 0.8);
+
+// Try to add stroke with error handling
+try {
+    map.setPaintProperty('TN NEW COUNTY MAP', 'fill-outline-color', '#ffffff');
+} catch(e) {
+    console.log('Layer does not support outline - may need to be set in Mapbox Studio:', e);
+}
+
+// Update legend
+updateLegend(fieldName, stops);
+            }
+            
+            // Update legend with current field info
+            function updateLegend(fieldName, stops) {
+                document.getElementById('legend-title').textContent = fieldName;
+                
+                const labelsContainer = document.getElementById('legend-labels');
+                labelsContainer.innerHTML = `
+                    <span>${stops[0].toLocaleString()}</span>
+                    <span>${stops[Math.floor(stops.length/2)].toLocaleString()}</span>
+                    <span>${stops[stops.length-1].toLocaleString()}+</span>
+                `;
+            }
+            
+            // Fullscreen functionality
+            document.getElementById('fullscreen-link').addEventListener('click', () => {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            });
+            
+            // Toggle functionality for Provider Type dropdown
+            document.getElementById('provider-dropdown-header').addEventListener('click', () => {
+                const content = document.getElementById('provider-dropdown-content');
+                const arrow = document.getElementById('provider-dropdown-arrow');
+                content.classList.toggle('expanded');
+                arrow.classList.toggle('expanded');
+            });
+            
+            // Toggle functionality for Additional Context dropdown
+            document.getElementById('context-dropdown-header').addEventListener('click', () => {
+                const content = document.getElementById('context-dropdown-content');
+                const arrow = document.getElementById('context-dropdown-arrow');
+                content.classList.toggle('expanded');
+                arrow.classList.toggle('expanded');
+            });
+            
+            // Provider select change handler
+            document.getElementById('provider-select').addEventListener('change', (e) => {
+                updateProviderLayer(e.target.value);
+            });
+            
+            // Initialize with default provider type
+            map.once('idle', () => {
+                // Set initial visibility for county layer
+                map.setLayoutProperty('TN NEW COUNTY MAP', 'visibility', 'visible');
+                
+                // Set initial visibility for other layers
+                map.setLayoutProperty('Rural Overlay', 'visibility', 'none');
+                map.setLayoutProperty('Health Services', 'visibility', 'none');
+                map.setLayoutProperty('TN MED SCHOOLS NEW', 'visibility', 'none');
+                map.setLayoutProperty('GME PROGRAMS', 'visibility', 'none');
+                
+                // Apply initial styling
+                updateProviderLayer('All Physicians');
+            });
+            
+            // Get unique specialties from GME layer
+            function loadSpecialties() {
+                const bounds = [[-90, 34], [-82, 37]];
+                const features = map.queryRenderedFeatures(
+                    [map.project(bounds[0]), map.project(bounds[1])],
+                    { layers: ['GME PROGRAMS'] }
+                );
+                
+                const specialties = new Set();
+                features.forEach(feature => {
+                    const specialty = feature.properties['Project Specialty'];
+                    if (specialty) {
+                        specialties.add(specialty);
+                    }
+                });
+                
+                allSpecialties = Array.from(specialties).sort();
+                selectedSpecialties = new Set(allSpecialties);
+                
+                const container = document.getElementById('specialty-checkboxes');
+                container.innerHTML = '';
+                
+                allSpecialties.forEach(specialty => {
+                    const div = document.createElement('div');
+                    div.className = 'gme-filter-option';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `specialty-${specialty.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
+                    checkbox.value = specialty;
+                    checkbox.checked = true;
+                    checkbox.addEventListener('change', updateGMEFilter);
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = checkbox.id;
+                    label.textContent = specialty;
+                    
+                    div.appendChild(checkbox);
+                    div.appendChild(label);
+                    container.appendChild(div);
+                });
+            }
+            
+            // Update GME layer filter
+            function updateGMEFilter() {
+                selectedSpecialties.clear();
+                document.querySelectorAll('#specialty-checkboxes input[type="checkbox"]:checked').forEach(cb => {
+                    selectedSpecialties.add(cb.value);
+                });
+                
+                if (selectedSpecialties.size === 0) {
+                    map.setFilter('GME PROGRAMS', ['==', 'Project Specialty', '']);
+                } else if (selectedSpecialties.size === allSpecialties.length) {
+                    map.setFilter('GME PROGRAMS', null);
+                } else {
+                    const filterExpression = ['in', ['get', 'Project Specialty'], ['literal', Array.from(selectedSpecialties)]];
+                    map.setFilter('GME PROGRAMS', filterExpression);
+                }
+            }
+            
+            // Load specialties after map loads
+            setTimeout(() => {
+                loadSpecialties();
+            }, 1500);
+            
+            // Search functionality for specialties
+            document.getElementById('specialty-search').addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const checkboxes = document.querySelectorAll('.gme-filter-option');
+                
+                checkboxes.forEach(option => {
+                    const label = option.querySelector('label');
+                    const specialtyName = label.textContent.toLowerCase();
+                    
+                    if (specialtyName.includes(searchTerm)) {
+                        option.style.display = 'flex';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Toggle dropdown and try loading specialties if needed
+            let hasTriedOnOpen = false;
+            document.getElementById('gme-filter-header').addEventListener('click', () => {
+                const dropdown = document.getElementById('gme-filter-dropdown');
+                const arrow = document.getElementById('gme-filter-arrow');
+                dropdown.classList.toggle('expanded');
+                arrow.classList.toggle('expanded');
+                
+                if (!hasTriedOnOpen && allSpecialties.length === 0) {
+                    hasTriedOnOpen = true;
+                    loadSpecialties();
+                }
+            });
+            
+            // Select/Deselect all buttons
+            document.getElementById('select-all-specialties').addEventListener('click', () => {
+                document.querySelectorAll('#specialty-checkboxes input[type="checkbox"]').forEach(cb => {
+                    const option = cb.closest('.gme-filter-option');
+                    if (option.style.display !== 'none') {
+                        cb.checked = true;
+                    }
+                });
+                updateGMEFilter();
+            });
+            
+            document.getElementById('deselect-all-specialties').addEventListener('click', () => {
+                document.querySelectorAll('#specialty-checkboxes input[type="checkbox"]').forEach(cb => {
+                    const option = cb.closest('.gme-filter-option');
+                    if (option.style.display !== 'none') {
+                        cb.checked = false;
+                    }
+                });
+                updateGMEFilter();
+            });
+            
+            // Additional context layer toggles
+            document.getElementById('toggle-rural').addEventListener('change', (e) => {
+                map.setLayoutProperty('Rural Overlay', 'visibility', e.target.checked ? 'visible' : 'none');
+                document.getElementById('rural-legend').classList.toggle('hidden', !e.target.checked);
+            });
+            
+            document.getElementById('toggle-health').addEventListener('change', (e) => {
+                map.setLayoutProperty('Health Services', 'visibility', e.target.checked ? 'visible' : 'none');
+                document.getElementById('hospital-legend').classList.toggle('hidden', !e.target.checked);
+            });
+            
+            document.getElementById('toggle-medical-schools').addEventListener('change', (e) => {
+                map.setLayoutProperty('TN MED SCHOOLS NEW', 'visibility', e.target.checked ? 'visible' : 'none');
+                document.getElementById('medical-schools-legend').classList.toggle('hidden', !e.target.checked);
+            });
+            
+            document.getElementById('toggle-gme').addEventListener('change', (e) => {
+                map.setLayoutProperty('GME PROGRAMS', 'visibility', e.target.checked ? 'visible' : 'none');
+                document.getElementById('gme-legend').classList.toggle('hidden', !e.target.checked);
+                document.getElementById('gme-filter').classList.toggle('hidden', !e.target.checked);
+            });
+            
+            // Hover cursors for interactive layers
+            map.on('mouseenter', 'TN NEW COUNTY MAP', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            
+            map.on('mouseleave', 'TN NEW COUNTY MAP', () => {
+                map.getCanvas().style.cursor = '';
+            });
+            
+            map.on('mouseenter', 'Health Services', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            
+            map.on('mouseleave', 'Health Services', () => {
+                map.getCanvas().style.cursor = '';
+            });
+            
+            map.on('mouseenter', 'TN MED SCHOOLS NEW', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            
+            map.on('mouseleave', 'TN MED SCHOOLS NEW', () => {
+                map.getCanvas().style.cursor = '';
+            });
+            
+            map.on('mouseenter', 'GME PROGRAMS', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            
+            map.on('mouseleave', 'GME PROGRAMS', () => {
+                map.getCanvas().style.cursor = '';
+            });
+            
+            // Combined click handler for all layers
+            map.on('click', (e) => {
+                // Check point layers first (higher priority)
+                
+                // Check GME Programs first
+                const gmeFeatures = map.queryRenderedFeatures(e.point, {
+                    layers: ['GME PROGRAMS']
+                });
+                
+                if (gmeFeatures.length > 0) {
+                    const feature = gmeFeatures[0];
+                    const programName = feature.properties['Program Name'] || 'Unknown Program';
+                    const specialty = feature.properties['Project Specialty'] || 'N/A';
+                    const firstYearPositions = feature.properties['First-Year Positions'] || 'N/A';
+                    const lengthOfTraining = feature.properties['Length of Training (Years)'] || 'N/A';
+                    
+                    let popupContent = `<div class="popup-layer-label">Graduate Medical Education Programs</div><div class="popup-title">${programName}</div>`;
+                    popupContent += `<div class="popup-data"><strong>Specialty:</strong> ${specialty}</div>`;
+                    popupContent += `<div class="popup-data"><strong>First-Year Positions:</strong> ${firstYearPositions}</div>`;
+                    popupContent += `<div class="popup-data"><strong>Length of Training (Years):</strong> ${lengthOfTraining}</div>`;
+                    
+                    if (currentPopup) currentPopup.remove();
+                    currentPopup = new mapboxgl.Popup()
+                        .setLngLat(e.lngLat)
+                        .setHTML(popupContent)
+                        .addTo(map);
+                    return;
+                }
+                
+            // Check Medical Schools
+const schoolFeatures = map.queryRenderedFeatures(e.point, {
+    layers: ['TN MED SCHOOLS NEW']
+});
+
+if (schoolFeatures.length > 0) {
+    const feature = schoolFeatures[0];
+    const medicalSchool = feature.properties['Medical School'] || 'Unknown School';
+    const schoolType = feature.properties['School Type'] || 'N/A';
+    let matriculants = feature.properties['Matriculants 2024-25'] || 'N/A';
+    
+   // Special case for LMU-Knoxville - using includes for more flexible matching
+if (medicalSchool.includes('Lincoln Memorial') && medicalSchool.includes('Knoxville')) {
+    matriculants = 'Combined with matriculant reporting in Harrogate campus';
+}
+    
+    let popupContent = `<div class="popup-layer-label">Tennessee Medical Schools</div><div class="popup-title">${medicalSchool}</div>`;
+    popupContent += `<div class="popup-data"><strong>School Type:</strong> ${schoolType}</div>`;
+    popupContent += `<div class="popup-data"><strong>Matriculants 2024-25:</strong> ${matriculants}</div>`;
+    
+    if (currentPopup) currentPopup.remove();
+    currentPopup = new mapboxgl.Popup()
+        .setLngLat(e.lngLat)
+        .setHTML(popupContent)
+        .addTo(map);
+    return;
+}
+                
+                // Check Hospital Locations
+                const hospitalFeatures = map.queryRenderedFeatures(e.point, {
+                    layers: ['Health Services']
+                });
+                
+                if (hospitalFeatures.length > 0) {
+                    const feature = hospitalFeatures[0];
+                    const hospitalName = feature.properties.HospitalName || 'Unknown Hospital';
+                    
+                    let popupContent = `<div class="popup-layer-label">Hospital Locations</div><div class="popup-title">${hospitalName}</div>`;
+                    
+                    if (currentPopup) currentPopup.remove();
+                    currentPopup = new mapboxgl.Popup()
+                        .setLngLat(e.lngLat)
+                        .setHTML(popupContent)
+                        .addTo(map);
+                    return;
+                }
+                
+                // Finally check county layer (lowest priority)
+                const features = map.queryRenderedFeatures(e.point, {
+                    layers: ['TN NEW COUNTY MAP']
+                });
+                
+                if (features.length > 0) {
+                    const feature = features[0];
+                    const properties = feature.properties;
+                    
+                   const countyName = properties.Name || properties.name || properties.NAME || 'Unknown County';
+const actualFieldName = 'TN NEW - PPRs (2)_' + currentProviderField;
+const providerValue = properties[actualFieldName];
+
+let popupContent = `<div class="popup-layer-label">${currentProviderField}</div><div class="popup-title">${countyName}</div>`;
+
+if (providerValue !== undefined && providerValue !== null) {
+    if (providerValue === 0) {
+        popupContent += `<div class="popup-data">No providers in this county</div>`;
+    } else {
+        popupContent += `<div class="popup-data"><strong>Population per Provider FTE:</strong> ${providerValue.toLocaleString()}</div>`;
+    }
+} else {
+    popupContent += `<div class="popup-data">No data available</div>`;
+}
+                    
+                    if (currentPopup) currentPopup.remove();
+                    currentPopup = new mapboxgl.Popup()
+                        .setLngLat(e.lngLat)
+                        .setHTML(popupContent)
+                        .addTo(map);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
