@@ -1134,11 +1134,18 @@ map.once('idle', () => {
                 document.getElementById('medical-schools-legend').classList.toggle('hidden', !e.target.checked);
             });
             
-            document.getElementById('toggle-gme').addEventListener('change', (e) => {
-                map.setLayoutProperty('GME PROGRAMS', 'visibility', e.target.checked ? 'visible' : 'none');
-                document.getElementById('gme-legend').classList.toggle('hidden', !e.target.checked);
-                document.getElementById('gme-filter').classList.toggle('hidden', !e.target.checked);
-            });
+     document.getElementById('toggle-gme').addEventListener('change', (e) => {
+    map.setLayoutProperty('GME PROGRAMS', 'visibility', e.target.checked ? 'visible' : 'none');
+    document.getElementById('gme-legend').classList.toggle('hidden', !e.target.checked);
+    document.getElementById('gme-filter').classList.toggle('hidden', !e.target.checked);
+    
+    // Load specialties when layer is shown for the first time
+    if (e.target.checked && allSpecialties.length === 0) {
+        setTimeout(() => {
+            loadSpecialties();
+        }, 500);
+    }
+});
             
             // Hover cursors for interactive layers
             map.on('mouseenter', 'TN NEW COUNTY MAP', () => {
