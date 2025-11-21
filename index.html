@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tennessee Health Services Map</title>
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
     <style>
        body {
@@ -36,12 +36,7 @@
     left: 10px;
     z-index: 2;
     max-width: 350px;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 8px;
 }
 
 .logo-section {
@@ -59,31 +54,31 @@
         
         .title-section h4 {
     margin: 0 0 10px 0;
-    font-size: 24px;           /* Increase size */
-    font-weight: 700;           /* Make bolder (700 = bold) */
-    color: #000000;            /* Change color (dark green example) */
-    text-transform: uppercase;  /* Optional: make all caps */
-    font-family: 'Josefin Sans', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-family: 'Montserrat', sans-serif;
 }
         
         .title-section p {
             margin: 0;
-            font-size: 14px;
-            color: #000000;
+            font-size: 12px;
+            color: #ffffff;
             line-height: 1.4;
         }
         
         .fullscreen-link {
-            color: #0066cc;
+            color: #87CEEB;
             text-decoration: underline;
             cursor: pointer;
             display: block;
             margin-top: 8px;
-            font-size: 14px;
+            font-size: 12px;
         }
         
         .fullscreen-link:hover {
-            color: #0052a3;
+            color: #ADD8E6;
         }
         
         .dropdown-section {
@@ -96,8 +91,8 @@
         }
 #provider-dropdown-section {
     position: absolute;
-    top: 10px;  /* Aligned with top of title section */
-    left: 400px;  /* To the right of title section (350px + 10px + 10px buffer) */
+    top: 225px;
+    left: 10px;
     z-index: 2;
     max-width: 300px;
     background: rgba(255, 255, 255, 0.7);
@@ -117,14 +112,13 @@
         }
         
         .dropdown-title {
-    font-size: 16px;           /* Increase size */
-    font-weight: 700;           /* Make bolder */
-    color: #000000;            /* Match title color or choose different */
+    font-size: 16px;
+    font-weight: 700;
+    color: #000000;
     font-family: 'Montserrat', sans-serif;
-    text-transform: uppercase;  /* Optional: make all caps */
-    letter-spacing: 0.5px;      /* Optional: add letter spacing */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
-        }
         
         .dropdown-arrow {
             font-size: 12px;
@@ -552,6 +546,214 @@
             user-select: none;
             color: #333;
         }
+
+        /* Mobile Menu Toggle Button */
+        .mobile-menu-toggle {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .mobile-menu-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: #333;
+        }
+
+        /* Mobile Side Panel */
+        .mobile-side-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: -100%;
+            bottom: 0;
+            width: 90%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 60px 20px 20px;
+            transition: right 0.3s ease;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .mobile-side-panel.active {
+            right: 0;
+        }
+
+        .close-mobile-menu {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            font-size: 24px;
+            color: #333;
+        }
+
+        /* Mobile Responsive Styles */
+        @media screen and (max-width: 768px) {
+            .title-section {
+                top: 5px;
+                left: 5px;
+                max-width: calc(100% - 60px);
+                padding: 5px;
+            }
+            
+            .title-section h4 {
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+            
+            .title-section p {
+                display: none;
+            }
+            
+            #provider-dropdown-section {
+                display: none;
+            }
+            
+            .layer-toggle-menu {
+                display: none;
+            }
+            
+            .gme-filter {
+                display: none !important;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .mobile-side-panel {
+                display: block;
+            }
+            
+            .legend {
+                bottom: 10px;
+                right: auto;
+                left: 5px;
+                padding: 10px;
+                min-width: 150px;
+                max-width: calc(100% - 80px);
+            }
+            
+            .legend-title {
+                font-size: 12px;
+            }
+            
+            .legend-labels {
+                font-size: 10px;
+            }
+            
+            .medical-schools-legend,
+            .hospital-legend,
+            .gme-legend,
+            .rural-legend {
+                display: none !important;
+            }
+            
+            .logo-section {
+                display: none;
+            }
+            
+            .map-credit {
+                display: none;
+            }
+            
+            .mapboxgl-popup-content {
+                padding: 10px;
+                max-width: 200px;
+            }
+            
+            .popup-title {
+                font-size: 14px;
+            }
+            
+            .popup-data {
+                font-size: 12px;
+            }
+
+            .mobile-section {
+                background: white;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 15px;
+            }
+
+            .mobile-section-title {
+                font-size: 14px;
+                font-weight: 700;
+                color: #000;
+                text-transform: uppercase;
+                margin-bottom: 10px;
+                font-family: 'Montserrat', sans-serif;
+            }
+
+            .mobile-section-description {
+                font-size: 11px;
+                color: #666;
+                line-height: 1.4;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .title-section h4 {
+                font-size: 14px;
+            }
+            
+            .legend {
+                bottom: 5px;
+                padding: 8px;
+            }
+        }
+
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+            .title-section h4 {
+                font-size: 22px;
+            }
+            
+            .title-section p {
+                font-size: 11px;
+            }
+            
+            #provider-dropdown-section {
+                top: 195px;
+                max-width: 260px;
+            }
+            
+            .logo-section img {
+                width: 200px;
+            }
+            
+            .layer-toggle-menu {
+                max-width: 240px;
+            }
+            
+            .dropdown-title {
+                font-size: 14px;
+            }
+            
+            .gme-filter {
+                right: 260px;
+                max-width: 240px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -560,13 +762,86 @@
     <!-- Title Section (Top Left) -->
 <div class="title-section">
     <h4>Tennessee Medical Provider Landscape</h4>
-    <p>Select a provider type to see the ratio of population to that type of provider. Add information to the map using the layers in the "Additional Context" menu<br><br><span class="fullscreen-link" id="fullscreen-link">Open map in new tab for full-screen viewing</span></p>
+    <p>Select a provider type to see the ratio of population to that type of provider. Add information to the map using the layers in the "Additional Context" menu<br><br><span class="fullscreen-link" id="fullscreen-link">Trouble viewing this map on your screen? Click here to open map in new tab for full-screen viewing</span></p>
 </div>
 
 <!-- Logo Section -->
 <div class="logo-section">
     <img src="http://veritastestsite.com/wp-content/uploads/2025/08/Asset-1.png" alt="Logo">
 </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open menu">
+        <svg viewBox="0 0 24 24">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+        </svg>
+    </button>
+
+    <!-- Mobile Side Panel -->
+    <div class="mobile-side-panel" id="mobile-side-panel">
+        <button class="close-mobile-menu" id="close-mobile-menu" aria-label="Close menu">&times;</button>
+        
+        <!-- Provider Type Section -->
+        <div class="mobile-section">
+            <div class="mobile-section-title">Provider Type</div>
+            <p class="mobile-section-description">Select a medical specialty to view population-to-provider ratios across Tennessee counties.</p>
+            <select id="provider-select-mobile" class="provider-select">
+                <option value="All Physicians">All Physicians</option>
+                <optgroup label="Primary Care Physicians">
+                    <option value="PCP - Family Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Family Medicine</option>
+                    <option value="PCP - Geriatric Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Geriatric Medicine</option>
+                    <option value="PCP - Internal Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Internal Medicine</option>
+                    <option value="PCP - Internal Medicine/Pediatric Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Internal Medicine/Pediatric Medicine</option>
+                    <option value="PCP - Ob/Gyn">&nbsp;&nbsp;&nbsp;&nbsp;Ob/Gyn</option>
+                    <option value="PCP - Pediatric Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Pediatric Medicine</option>
+                    <option value="PCP - Psychiatry">&nbsp;&nbsp;&nbsp;&nbsp;Psychiatry</option>
+                </optgroup>
+                <optgroup label="Specialists">
+                    <option value="SPEC - Anesthesiology">&nbsp;&nbsp;&nbsp;&nbsp;Anesthesiology</option>
+                    <option value="SPEC - Cardiology">&nbsp;&nbsp;&nbsp;&nbsp;Cardiology</option>
+                    <option value="SPEC - Critical Care Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Critical Care Medicine</option>
+                    <option value="SPEC - Emergency Medicine">&nbsp;&nbsp;&nbsp;&nbsp;Emergency Medicine</option>
+                    <option value="SPEC - Ent">&nbsp;&nbsp;&nbsp;&nbsp;Ent</option>
+                    <option value="SPEC - Gastroenterology">&nbsp;&nbsp;&nbsp;&nbsp;Gastroenterology</option>
+                    <option value="SPEC - General Surgery">&nbsp;&nbsp;&nbsp;&nbsp;General Surgery</option>
+                    <option value="SPEC - Hematology/Oncology">&nbsp;&nbsp;&nbsp;&nbsp;Hematology/Oncology</option>
+                    <option value="SPEC - Nephrology">&nbsp;&nbsp;&nbsp;&nbsp;Nephrology</option>
+                    <option value="SPEC - Neurology">&nbsp;&nbsp;&nbsp;&nbsp;Neurology</option>
+                    <option value="SPEC - Ophthalmology">&nbsp;&nbsp;&nbsp;&nbsp;Ophthalmology</option>
+                    <option value="SPEC - Orthopedics">&nbsp;&nbsp;&nbsp;&nbsp;Orthopedics</option>
+                    <option value="SPEC - Pulmonology">&nbsp;&nbsp;&nbsp;&nbsp;Pulmonology</option>
+                    <option value="SPEC - Radiology">&nbsp;&nbsp;&nbsp;&nbsp;Radiology</option>
+                    <option value="SPEC - Urology">&nbsp;&nbsp;&nbsp;&nbsp;Urology</option>
+                    <option value="SPEC - Endocrinology">&nbsp;&nbsp;&nbsp;&nbsp;Endocrinology</option>
+                    <option value="SPEC - Infectious Disease">&nbsp;&nbsp;&nbsp;&nbsp;Infectious Disease</option>
+                    <option value="SPEC - Rheumatology">&nbsp;&nbsp;&nbsp;&nbsp;Rheumatology</option>
+                    <option value="SPEC - All Other Specialties">&nbsp;&nbsp;&nbsp;&nbsp;All Other Specialties</option>
+                </optgroup>
+            </select>
+        </div>
+        
+        <!-- Additional Context Section -->
+        <div class="mobile-section">
+            <div class="mobile-section-title">Additional Context</div>
+            <p class="mobile-section-description">Toggle additional layers to get context about Tennessee's health provider landscape.</p>
+            <div class="layer-toggle">
+                <input id="toggle-rural-mobile" type="checkbox">
+                <label for="toggle-rural-mobile">Rural Overlay</label>
+            </div>
+            <div class="layer-toggle">
+                <input id="toggle-health-mobile" type="checkbox">
+                <label for="toggle-health-mobile">Hospital Locations</label>
+            </div>
+            <div class="layer-toggle">
+                <input id="toggle-medical-schools-mobile" type="checkbox">
+                <label for="toggle-medical-schools-mobile">Tennessee Medical Schools</label>
+            </div>
+            <div class="layer-toggle">
+                <input id="toggle-gme-mobile" type="checkbox">
+                <label for="toggle-gme-mobile">Graduate Medical Education Programs</label>
+            </div>
+        </div>
+    </div>
     
     <!-- GME Filter (Below Title) -->
     <div class="gme-filter hidden" id="gme-filter">
@@ -741,6 +1016,79 @@
         // Store current provider field
         let currentProviderField = 'All Physicians';
         let fieldStops = {};
+
+        // Mobile menu toggle functionality
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileSidePanel = document.getElementById('mobile-side-panel');
+        const closeMobileMenu = document.getElementById('close-mobile-menu');
+
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+                mobileSidePanel.classList.add('active');
+            });
+        }
+
+        if (closeMobileMenu) {
+            closeMobileMenu.addEventListener('click', () => {
+                mobileSidePanel.classList.remove('active');
+            });
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!mobileSidePanel.contains(e.target) && !mobileMenuToggle.contains(e.target) && mobileSidePanel.classList.contains('active')) {
+                    mobileSidePanel.classList.remove('active');
+                }
+            }
+        });
+
+        // Sync mobile provider select with desktop
+        const providerSelectMobile = document.getElementById('provider-select-mobile');
+        const providerSelectDesktop = document.getElementById('provider-select');
+        
+        if (providerSelectMobile) {
+            providerSelectMobile.addEventListener('change', (e) => {
+                if (providerSelectDesktop) {
+                    providerSelectDesktop.value = e.target.value;
+                }
+                updateProviderLayer(e.target.value);
+                if (window.innerWidth <= 768) {
+                    mobileSidePanel.classList.remove('active');
+                }
+            });
+        }
+
+        // Sync mobile toggles with desktop
+        const syncToggles = [
+            ['toggle-rural', 'toggle-rural-mobile', 'Rural Overlay', 'rural-legend'],
+            ['toggle-health', 'toggle-health-mobile', 'Health Services', 'hospital-legend'],
+            ['toggle-medical-schools', 'toggle-medical-schools-mobile', 'TN MED SCHOOLS NEW', 'medical-schools-legend'],
+            ['toggle-gme', 'toggle-gme-mobile', 'GME PROGRAMS', 'gme-legend']
+        ];
+
+        syncToggles.forEach(([desktopId, mobileId, layerName, legendId]) => {
+            const desktopToggle = document.getElementById(desktopId);
+            const mobileToggle = document.getElementById(mobileId);
+            
+            if (mobileToggle && desktopToggle) {
+                mobileToggle.addEventListener('change', (e) => {
+                    desktopToggle.checked = e.target.checked;
+                    map.setLayoutProperty(layerName, 'visibility', e.target.checked ? 'visible' : 'none');
+                    if (legendId) {
+                        document.getElementById(legendId).classList.toggle('hidden', !e.target.checked);
+                    }
+                    if (layerName === 'GME PROGRAMS') {
+                        document.getElementById('gme-filter').classList.toggle('hidden', !e.target.checked);
+                    }
+                });
+            }
+        });
+
+        // Adjust map zoom for mobile
+        if (window.innerWidth <= 768) {
+            map.setZoom(5.8);
+        }
         
         map.on('load', () => {
             let currentPopup = null;
@@ -899,6 +1247,10 @@ document.getElementById('fullscreen-link').addEventListener('click', () => {
             // Provider select change handler
             document.getElementById('provider-select').addEventListener('change', (e) => {
                 updateProviderLayer(e.target.value);
+                // Sync with mobile select
+                if (providerSelectMobile) {
+                    providerSelectMobile.value = e.target.value;
+                }
             });
             
             // Initialize with default provider type
@@ -1196,6 +1548,16 @@ if (providerValue !== undefined && providerValue !== null) {
                         .addTo(map);
                 }
             });
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            // Adjust zoom level based on screen size
+            if (window.innerWidth <= 768) {
+                map.setZoom(5.8);
+            } else {
+                map.setZoom(6.62);
+            }
         });
     </script>
 </body>
